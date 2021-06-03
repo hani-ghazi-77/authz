@@ -6,7 +6,7 @@ import {
 import { PassportModule } from '@nestjs/passport';
 import * as admin from 'firebase-admin';
 import { FirebaseStrategy } from './strategies/firebase.strategy';
-import { FirebaseService } from './services/firebase.service';
+import { FirebaseService } from './services';
 
 @Module({})
 export class AuthModule {
@@ -18,8 +18,6 @@ export class AuthModule {
 
     const app =
       admin.apps.length === 0 ? admin.initializeApp(options) : admin.apps[0];
-
-    console.log({ app });
 
     const firebaseAuthenticationProvider = {
       provide: FIREBASE_ADMIN_INJECT,
