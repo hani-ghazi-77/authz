@@ -8,9 +8,15 @@ export class FirebaseStrategy extends PassportStrategy(
   FirebaseAuthStrategy,
   'firebase',
 ) {
-  public constructor() {
+  public validateCB;
+  public constructor(func) {
     super({
       extractor: ExtractJwt.fromAuthHeaderAsBearerToken(),
     });
+    this.validateCB = func;
+  }
+
+  async validate(payload) {
+    return this.validateCB();
   }
 }
