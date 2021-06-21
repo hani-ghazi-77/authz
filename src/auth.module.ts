@@ -7,38 +7,61 @@ import { PassportModule } from '@nestjs/passport';
 import * as admin from 'firebase-admin';
 import { FirebaseStrategy } from './strategies/firebase.strategy';
 import { FirebaseService } from './services';
+import { TwilioModule } from 'nestjs-twilio';
+import { AuthzOptions } from './interfaces/authz-options.interface';
 
 @Module({})
 export class AuthModule {
-  static async register(options: admin.AppOptions): Promise<DynamicModule> {
-    const firebaseAdminModuleOptions = {
-      provide: FIREBASE_ADMIN_MODULE_OPTIONS,
-      useValue: options,
-    };
+  static async register(options: AuthzOptions): Promise<DynamicModule> {
+    const imports = [],
+      providers = [],
+      exports = [];
 
-    const app =
-      admin.apps.length === 0 ? admin.initializeApp(options) : admin.apps[0];
+    imports.push(PassportModule);
 
-    const firebaseAuthenticationProvider = {
-      provide: FIREBASE_ADMIN_INJECT,
-      useValue: app,
-    };
+    if (options.firebase) {
+      const firebaseAdminModuleOptions = {
+        provide: FIREBASE_ADMIN_MODULE_OPTIONS,
+        useValue: options.firebase,
+      };
+
+      const app =
+        admin.apps.length === 0
+          ? admin.initializeApp(options.firebase)
+          : admin.apps[0];
+
+      const firebaseAuthenticationProvider = {
+        provide: FIREBASE_ADMIN_INJECT,
+        useValue: app,
+      };
+
+      providers.push(
+        firebaseAdminModuleOptions,
+        firebaseAuthenticationProvider,
+        FirebaseStrategy,
+        FirebaseService,
+      );
+      exports.push(
+        firebaseAdminModuleOptions,
+        firebaseAuthenticationProvider,
+        FirebaseStrategy,
+        FirebaseService,
+      );
+    }
+
+    if (options.twilio) {
+      providers.push({
+        provide: 'TWILIO_CONSTANT',
+        useValue: {},
+      });
+      imports.push(TwilioModule.forRoot(options.twilio));
+    }
 
     return {
       module: AuthModule,
-      imports: [PassportModule],
-      providers: [
-        firebaseAdminModuleOptions,
-        firebaseAuthenticationProvider,
-        FirebaseStrategy,
-        FirebaseService,
-      ],
-      exports: [
-        firebaseAdminModuleOptions,
-        firebaseAuthenticationProvider,
-        FirebaseStrategy,
-        FirebaseService,
-      ],
+      imports,
+      providers,
+      exports,
     };
   }
 }
