@@ -1,6 +1,6 @@
 {
   "name": "@nyxt/authz",
-  "version": "0.0.4",
+  "version": "0.0.7",
   "description": "Nice lib supports multiple auth strategies",
   "author": "hani1993ghazi@gmail.com",
   "private": false,

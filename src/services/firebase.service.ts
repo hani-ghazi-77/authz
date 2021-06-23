@@ -8,7 +8,7 @@ export class FirebaseService {
     @Inject(FIREBASE_ADMIN_INJECT) private readonly fireSDK: FirebaseAdminSDK,
   ) {}
 
-  getUsers() {
-    return this.fireSDK.auth().listUsers();
+  base() {
+    return this.fireSDK.auth();
   }
 }
